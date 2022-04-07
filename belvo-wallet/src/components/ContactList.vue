@@ -1,38 +1,23 @@
 <template>
-  <div class="max-w-md mx-auto space-y-6">
-    <div class="dropdown-menu">
-      <div
-        class="bg-white rounded-lg shadow-xl flex items-center px-4 py-6 cursor-pointer"
-      >
-        <input
-          type="text"
-          placeholder="Juma Musa"
-          readonly
-          class="pointer-events-none text-base placeholder-gray-400 outline-none w-full h-full flex-1"
-        />
-        <svg
-          width="20"
-          height="10"
-          viewBox="0 0 20 10"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <line x1="0" y1="0" x2="10" y2="10" stroke="#9CA3AF" />
-          <line x1="20" y1="0" x2="10" y2="10" stroke="#9CA3AF" />
-        </svg>
-      </div>
-
-      <div class="bg-white rounded-lg shadow-xl px-4 relative mt-8">
-        <svg
-          class="absolute bottom-full right-4"
-          width="30"
-          height="20"
-          viewBox="0 0 30 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <polygon points="15, 0 30, 20 0, 20" fill="#FFFFFF" />
-        </svg>
-      </div>
-    </div>
+  <div class="relative inline-flex">
+    <svg
+      class="w-2 h-2 absolute top-0 right-0 m-4 pointer-events-none"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 412 232"
+    >
+      <path
+        d="M206 171.144L42.678 7.822c-9.763-9.763-25.592-9.763-35.355 0-9.763 9.764-9.763 25.592 0 35.355l181 181c4.88 4.882 11.279 7.323 17.677 7.323s12.796-2.441 17.678-7.322l181-181c9.763-9.764 9.763-25.592 0-35.355-9.763-9.763-25.592-9.763-35.355 0L206 171.144z"
+        fill="#648299"
+        fill-rule="nonzero"
+      />
+    </svg>
+    <select
+      class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none"
+    >
+      <option v-for="contact in contactList" :key="contact.name">
+        {{ `${contact.name} -- ${contact.email}` }}
+      </option>
+    </select>
   </div>
 </template>
 
@@ -40,7 +25,7 @@
   export default {
     name: "ContactList",
     props: {
-      msg: String,
+      contactList: Array,
     },
   };
 </script>

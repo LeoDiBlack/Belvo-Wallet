@@ -1,42 +1,37 @@
 <template>
-  <div
+  <button
     v-for="(value, key, index) in cryptoBalance"
     :key="index"
-    class="p-5 bg-white rounded shadow-sm"
+    @click="returnSelection({ key, value })"
+    type="button"
+    class="p-5 bg-white rounded shadow-sm hover:shadow-lg"
   >
     <div class="text-base text-gray-400">{{ key }}</div>
     <div class="flex items-center pt-1">
       <div class="text-2xl font-bold text-gray-900">
         {{ value }}
       </div>
-      <span
-        class="flex items-center px-2 py-0.5 mx-2 text-sm text-green-600 bg-green-100 rounded-full"
-      >
-        <svg
-          class="w-4 h-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M18 15L12 9L6 15"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-        </svg>
-        <span>1.8%</span>
-      </span>
     </div>
-  </div>
+  </button>
 </template>
 
 <script>
   export default {
     name: "CardInfo",
     props: {
-      cryptoBalance: Array,
+      cryptoBalance: Object,
     },
+    data() {
+      return {
+        selectedCrypto: "",
+      };
+    },
+    methods: {
+      returnSelection(crypto) {
+        this.selectedCrypto = crypto;
+        this.$emit("selectedElement", crypto);
+      },
+    },
+    emits: ["selectedElement"],
   };
 </script>

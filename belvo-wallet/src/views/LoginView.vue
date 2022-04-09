@@ -23,8 +23,8 @@
             <label class="block text-gray-700">Username</label>
             <input
               v-model="username"
-              name=""
-              id=""
+              name="username"
+              id="username"
               placeholder="Enter Username"
               class="w-full px-4 py-3 rounded-lg bg-gray-200 mt-2 border focus:border-blue-500 focus:bg-white focus:outline-none"
               autofocus
@@ -38,23 +38,14 @@
             <input
               v-model="password"
               type="password"
-              name=""
-              id=""
+              name="password"
+              id="password"
               placeholder="Enter Password"
               minlength="6"
               class="w-full px-4 py-3 rounded-lg bg-gray-200 mt-2 border focus:border-blue-500 focus:bg-white focus:outline-none"
               required
             />
           </div>
-
-          <div class="text-right mt-2">
-            <a
-              href="#"
-              class="text-sm font-semibold text-gray-700 hover:text-blue-700 focus:text-blue-700"
-              >Forgot Password?</a
-            >
-          </div>
-
           <button
             @click="login"
             type="submit"
@@ -93,13 +84,8 @@
               username: this.username,
             })
             .then((response) => {
-              console.log("entering into dashboard");
               this.$store.dispatch("setAccessTokenApi", response.data);
               localStorage.setItem("access_token", response.data);
-              console.log(
-                "entering into dashboard",
-                this.$store.getters.isUserLogged
-              );
               this.$router.push({ name: "dashboard" });
             })
             .catch(function (error) {

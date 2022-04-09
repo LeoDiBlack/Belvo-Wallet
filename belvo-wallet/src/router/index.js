@@ -11,14 +11,6 @@ const routes = [
     },
   },
   {
-    path: "/login",
-    name: "login",
-    component: LoginView,
-    meta: {
-      hideForAuth: true,
-    },
-  },
-  {
     path: "/dashboard",
     name: "dashboard",
     component: () =>
@@ -47,16 +39,17 @@ const router = createRouter({
   next();
 });
 
+*/
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (router.store.getters.isUserLogged) {
       next();
       return;
     }
-    next("/login");
+    next("/");
   } else {
     next();
   }
-});*/
+});
 
 export default router;

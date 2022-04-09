@@ -1,7 +1,7 @@
 <template>
   <div class="relative inline-flex">
     <svg
-      class="w-2 h-2 absolute top-0 right-0 m-4 pointer-events-none"
+      class="w-2 h-2 absolute top-0 right-0 m-4"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 412 232"
     >
@@ -12,9 +12,16 @@
       />
     </svg>
     <select
-      class="border border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none"
+      v-model="selectedContactIndex"
+      @change="onChange($event)"
+      class="border pointer border-gray-300 rounded-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none"
     >
-      <option v-for="contact in contactList" :key="contact.name">
+      <option
+        v-for="(contact, index) in contactList"
+        :key="contact.name"
+        :value="index"
+        class="pointer"
+      >
         {{ `${contact.name} -- ${contact.email}` }}
       </option>
     </select>
@@ -27,5 +34,16 @@
     props: {
       contactList: Array,
     },
+    data() {
+      return {
+        selectedContactIndex: 0,
+      };
+    },
+    methods: {
+      onChange() {
+        this.$emit("selectedContact", this.selectedContactIndex);
+      },
+    },
+    emits: ["selectedContact"],
   };
 </script>

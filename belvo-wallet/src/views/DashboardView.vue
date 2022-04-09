@@ -4,6 +4,7 @@
       asideMenuEnabled ? '[0%]' : '[-100%]'
     } fixed z-10 top-0 pb-3 px-6 w-full flex flex-col justify-between h-screen border-r bg-white transition duration-300 md:w-4/12 lg:ml-0 lg:w-[25%] xl:w-[20%] 2xl:w-[15%]`"
   >
+    <div v-show="false" class="utility-test ml-[0%] ml-[-100%]"></div>
     <div>
       <div class="-mx-6 px-6 py-4">
         <a href="https://belvo.com/" title="Belvo">
@@ -29,7 +30,7 @@
       <ul class="space-y-2 tracking-wide mt-8">
         <li>
           <button
-            @click="currentViewSelected = 'summary'"
+            @click="selectOptionView('summary')"
             class="px-4 py-3 flex items-center space-x-4 rounded-md text-gray-600 group"
           >
             <svg
@@ -54,7 +55,7 @@
         </li>
         <li>
           <button
-            @click="currentViewSelected = 'wallet-operations'"
+            @click="selectOptionView('wallet-operations')"
             class="px-4 py-3 flex items-center space-x-4 rounded-md text-gray-600 group"
           >
             <svg
@@ -107,7 +108,10 @@
         class="px-0 lg:px-6 flex items-center justify-between space-x-4 2xl:container"
       >
         <h5 hidden class="text-2xl text-gray-600 font-medium lg:block">
-          Dashboard
+          Dashboard -
+          {{
+            currentViewSelected.trim().replace(/^\w/, (c) => c.toUpperCase())
+          }}
         </h5>
         <button
           @click="asideMenuEnabled = !asideMenuEnabled"
@@ -143,7 +147,10 @@
               Select a contact to send Crypto
             </h5>
             <div class="mt-2 flex justify-center gap-4">
-              <ContactList :contactList="contacts" />
+              <ContactList
+                :contactList="contacts"
+                @selectedContact="updateSelectedContact($event)"
+              />
             </div>
           </div>
           <div class="mt-6">
@@ -151,8 +158,41 @@
               Select balance source
             </h5>
             <div class="mt-2 flex justify-center gap-4">
-              <CardInfo :cryptoBalance="balance" />
+              <CardInfo
+                :cryptoBalance="balance"
+                @selectedElement="updateSelectedCrypto($event)"
+              />
             </div>
+          </div>
+          <div
+            v-if="selectedCrypto"
+            class="mt-6 flex flex-wrap justify-center gap-4"
+          >
+            <p class="text-xl w-full text-gray-700 text-center">
+              You have selected {{ selectedCrypto.key }}
+            </p>
+            <div v-if="selectedCrypto.value > 0">
+              <label for="crypto"
+                >How much {{ selectedCrypto.key }} you want to Transfer?</label
+              >
+              <input
+                class="mx-4"
+                type="number"
+                id="crypto"
+                name="crypto"
+                min="0"
+                v-model="amountToTransfer"
+                :max="selectedCrypto.value"
+                step="0.1"
+              />
+              <button
+                @click="transferCrypto"
+                class="p-2 pl-5 pr-5 bg-green-500 text-gray-100 text-lg rounded-lg focus:border-4 border-green-300"
+              >
+                Send Crypto
+              </button>
+            </div>
+            <p v-else>You dont have enough funds to transfer</p>
           </div>
         </div>
         <div
@@ -160,20 +200,8 @@
           class="lg:h-full py-8 px-6 text-gray-600 rounded-xl border border-gray-200 bg-white"
         >
           <div class="mt-6">
-            <h1 class="text-xl text-gray-700 text-center">Wallet Operations</h1>
-            <h5 class="text-xl text-gray-700 text-center">
-              Select a contact to send Crypto
-            </h5>
             <div class="mt-2 flex justify-center gap-4">
-              <ContactList :contactList="contacts" />
-            </div>
-          </div>
-          <div class="mt-6">
-            <h5 class="text-xl text-gray-700 text-center">
-              Select balance source
-            </h5>
-            <div class="mt-2 flex justify-center gap-4">
-              <CardInfo :cryptoBalance="balance" />
+              <TableContent :transactions="walletTransactions" />
             </div>
           </div>
         </div>
@@ -184,26 +212,58 @@
 
 <script>
   import { mapGetters } from "vuex";
-  import ContactList from "@/components/ContactList.vue";
   import CardInfo from "@/components/CardInfo.vue";
+  import ContactList from "@/components/ContactList.vue";
+  import TableContent from "@/components/TableContent.vue";
   export default {
     name: "LoginView",
     components: {
-      ContactList,
       CardInfo,
+      ContactList,
+      TableContent,
     },
     data() {
       return {
         asideMenuEnabled: false,
+        amountToTransfer: 0,
         currentViewSelected: "summary",
+        selectedCrypto: "",
+        selectedContact: 0,
       };
     },
     computed: {
-      ...mapGetters(["balance", "contacts", "walletEmail"]),
+      ...mapGetters([
+        "balance",
+        "contacts",
+        "walletEmail",
+        "walletTransactions",
+      ]),
     },
     methods: {
+      transferCrypto() {
+        let transaction = {};
+        let isValidAmountToTransfer =
+          this.balance[this.selectedCrypto.key] - this.amountToTransfer >= 0;
+        transaction.receiver = this.selectedContact.email;
+        transaction.crypto = this.selectedCrypto;
+        transaction.amount = this.amountToTransfer;
+        transaction.status = "in progress";
+        if (transaction.amount > 0 && isValidAmountToTransfer) {
+          this.$store.dispatch("addTransaction", transaction);
+        }
+      },
+      selectOptionView(view) {
+        this.currentViewSelected = view;
+        this.asideMenuEnabled = false;
+      },
       logout() {
-        this.$router.push({ name: "login" });
+        this.$router.push({ name: "home" });
+      },
+      updateSelectedCrypto(crypto) {
+        this.selectedCrypto = crypto;
+      },
+      updateSelectedContact(contactIndex) {
+        this.selectedContact = this.contacts[contactIndex];
       },
     },
     created() {
@@ -216,8 +276,8 @@
           },
         })
         .then((response) => {
-          console.log("entering into contacts", response.data);
           this.$store.dispatch("setContacts", response.data);
+          this.selectedContact = this.contacts[0];
         })
         .catch(function (error) {
           console.error(error.response);
@@ -232,7 +292,6 @@
           },
         })
         .then((response) => {
-          console.log("entering into wallet", response.data);
           this.$store.dispatch("setWallet", response.data);
         })
         .catch(function (error) {
